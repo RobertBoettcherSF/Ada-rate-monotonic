@@ -37,17 +37,19 @@ else
 fi
 
 echo ""
-echo "Compiling test suite..."
-echo "=========================================================================="
-
+echo "Creating necessary directories..."
 # Create directories if they don't exist
 mkdir -p tests/obj
 mkdir -p tests/bin
+mkdir -p obj
+
+echo "Compiling test suite..."
+echo "=========================================================================="
 
 # Compile using gprbuild if available, otherwise gnatmake
 if [ "$GNATMAKE" = "gprbuild" ]; then
     cd tests
-    gprbuild -P tests.gpr -v 2>&1 | grep -v "^  " | grep -v "^$"
+    gprbuild -P tests.gpr 2>&1 | grep -v "^  " | grep -v "^$"
     cd ..
 else
     cd tests

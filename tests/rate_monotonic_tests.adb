@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Rate Monotonic Scheduling - Comprehensive Test Suite
 -- ============================================================================
--- This test suite contains 12+ tests that verify the correctness of the
+-- This test suite contains 42+ tests that verify the correctness of the
 -- Rate_Monotonic package implementation.
 --
 -- Tests are designed to:
@@ -27,9 +27,6 @@ procedure Rate_Monotonic_Tests is
    Passed_Tests : Natural := 0;
    Failed_Tests : Natural := 0;
 
-   -- Test result type
-   type Test_Result is (Pass, Fail);
-
    -- ==========================================================================
    -- Test Helper Procedures
    -- ==========================================================================
@@ -48,7 +45,7 @@ procedure Rate_Monotonic_Tests is
 
    procedure Assert_Equal (Actual, Expected : Float; Test_Name : String; 
                           Epsilon : Float := 0.0001) is
-      Diff : Float := abs (Actual - Expected);
+      Diff : constant Float := abs (Actual - Expected);
    begin
       Total_Tests := Total_Tests + 1;
       if Diff <= Epsilon then
@@ -111,28 +108,28 @@ procedure Rate_Monotonic_Tests is
    procedure Test_Priority_Assignment is
       -- Test 1: Tasks sorted by period ascending, priorities assigned correctly
       Tasks1 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 2.0, Period => 5.0, Is_ISR => False),
-         (Id => 3, Computation_Time => 0.5, Period => 2.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 2.0, Period => 5.0),
+         3 => (Id => 3, Computation_Time => 0.5, Period => 2.0)
       );
       
       -- Test 2: Single task gets highest priority
       Tasks2 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0)
       );
       
       -- Test 3: Already sorted tasks
       Tasks3 : Task_Array := (
-         (Id => 1, Computation_Time => 0.5, Period => 2.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 1.0, Period => 5.0, Is_ISR => False),
-         (Id => 3, Computation_Time => 2.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 0.5, Period => 2.0),
+         2 => (Id => 2, Computation_Time => 1.0, Period => 5.0),
+         3 => (Id => 3, Computation_Time => 2.0, Period => 10.0)
       );
       
       -- Test 4: Tasks with equal periods (should maintain relative order)
       Tasks4 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 5.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 2.0, Period => 5.0, Is_ISR => False),
-         (Id => 3, Computation_Time => 0.5, Period => 2.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 5.0),
+         2 => (Id => 2, Computation_Time => 2.0, Period => 5.0),
+         3 => (Id => 3, Computation_Time => 0.5, Period => 2.0)
       );
    begin
       Put_Line ("");
@@ -174,30 +171,30 @@ procedure Rate_Monotonic_Tests is
    procedure Test_ISR_Mitigation is
       -- Test 5: ISR with longer period than non-ISR tasks gets capped
       Tasks5 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.5, Period => 20.0, Is_ISR => True),
-         (Id => 3, Computation_Time => 0.2, Period => 5.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.5, Period => 20.0, Is_ISR => True),
+         3 => (Id => 3, Computation_Time => 0.2, Period => 5.0)
       );
       
       -- Test 6: ISR with shorter period than all non-ISR tasks unchanged
       Tasks6 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.5, Period => 2.0, Is_ISR => True),
-         (Id => 3, Computation_Time => 0.2, Period => 5.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.5, Period => 2.0, Is_ISR => True),
+         3 => (Id => 3, Computation_Time => 0.2, Period => 5.0)
       );
       
       -- Test 7: All ISR tasks
       Tasks7 : Task_Array := (
-         (Id => 1, Computation_Time => 0.5, Period => 20.0, Is_ISR => True),
-         (Id => 2, Computation_Time => 0.3, Period => 15.0, Is_ISR => True)
+         1 => (Id => 1, Computation_Time => 0.5, Period => 20.0, Is_ISR => True),
+         2 => (Id => 2, Computation_Time => 0.3, Period => 15.0, Is_ISR => True)
       );
       
       -- Test 8: Multiple ISRs with varying periods
       Tasks8 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.5, Period => 25.0, Is_ISR => True),
-         (Id => 3, Computation_Time => 0.2, Period => 5.0, Is_ISR => False),
-         (Id => 4, Computation_Time => 0.1, Period => 30.0, Is_ISR => True)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.5, Period => 25.0, Is_ISR => True),
+         3 => (Id => 3, Computation_Time => 0.2, Period => 5.0),
+         4 => (Id => 4, Computation_Time => 0.1, Period => 30.0, Is_ISR => True)
       );
    begin
       Put_Line ("");
@@ -233,24 +230,24 @@ procedure Rate_Monotonic_Tests is
    procedure Test_Utilization_Calculation is
       -- Test 9: Simple utilization calculation
       Tasks9 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 2.0, Period => 20.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 2.0, Period => 20.0)
       );
       
       -- Test 10: Zero utilization (all computation times are 0)
       Tasks10 : Task_Array := (
-         (Id => 1, Computation_Time => 0.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.0, Period => 20.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 0.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.0, Period => 20.0)
       );
       
       -- Test 11: Full utilization (100%)
       Tasks11 : Task_Array := (
-         (Id => 1, Computation_Time => 10.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 10.0, Period => 10.0)
       );
       
       -- Test 12: Over-utilization (>100%)
       Tasks12 : Task_Array := (
-         (Id => 1, Computation_Time => 15.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 15.0, Period => 10.0)
       );
    begin
       Put_Line ("");
@@ -281,26 +278,20 @@ procedure Rate_Monotonic_Tests is
       
       -- Test 14: Single task with low utilization is schedulable
       Tasks14 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0)
       );
       
       -- Test 15: Two tasks within Liu & Layland bound
-      -- For n=2: U <= 2*(2^(1/2) - 1) ≈ 2*(1.414 - 1) ≈ 0.828
+      -- For n=2: U <= 2*(2^(1/2) - 1) ≈ 0.828
       Tasks15 : Task_Array := (
-         (Id => 1, Computation_Time => 0.4, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.4, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 0.4, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.4, Period => 10.0)
       ); -- U = 0.08
       
       -- Test 16: Two tasks exceeding Liu & Layland bound
       Tasks16 : Task_Array := (
-         (Id => 1, Computation_Time => 0.5, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.5, Period => 10.0, Is_ISR => False)
-      ); -- U = 0.1, but wait, this is still low. Let me recalculate.
-      -- Actually for n=2: bound ≈ 0.828, so U=0.1 is well within bound
-      -- Let's use tasks that actually exceed the bound
-      Tasks16b : Task_Array := (
-         (Id => 1, Computation_Time => 4.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 5.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 4.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 5.0, Period => 10.0)
       ); -- U = 0.9, which exceeds 0.828
    begin
       Put_Line ("");
@@ -318,7 +309,7 @@ procedure Rate_Monotonic_Tests is
       Assert_True (Is_Schedulable_Liu_Layland (Tasks15), "Test 15.1: Two tasks with U=0.08 is schedulable");
       
       -- Test 16: Two tasks exceeding bound
-      Assert_False (Is_Schedulable_Liu_Layland (Tasks16b), "Test 16.1: Two tasks with U=0.9 exceeds Liu-Layland bound");
+      Assert_False (Is_Schedulable_Liu_Layland (Tasks16), "Test 16.1: Two tasks with U=0.9 exceeds Liu-Layland bound");
    end Test_Liu_Layland_Schedulability;
 
    -- ==========================================================================
@@ -330,22 +321,21 @@ procedure Rate_Monotonic_Tests is
       Tasks17 : Task_Array (1 .. 0);
       
       -- Test 18: Tasks where product (U_i + 1) <= 2
-      -- U1 = 0.5, U2 = 0.5, Product = (0.5+1)*(0.5+1) = 1.5*1.5 = 2.25 > 2
-      -- Let's use U1 = 0.3, U2 = 0.3, Product = 1.3*1.3 = 1.69 <= 2
+      -- U1 = 0.3, U2 = 0.3, Product = 1.3*1.3 = 1.69 <= 2
       Tasks18 : Task_Array := (
-         (Id => 1, Computation_Time => 3.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 3.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 3.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 3.0, Period => 10.0)
       );
       
       -- Test 19: Tasks where product (U_i + 1) > 2
       Tasks19 : Task_Array := (
-         (Id => 1, Computation_Time => 5.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 5.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 5.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 5.0, Period => 10.0)
       ); -- U1 = 0.5, U2 = 0.5, Product = 2.25 > 2
       
       -- Test 20: Single task (product = U+1 <= 2 when U <= 1)
       Tasks20 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0)
       );
    begin
       Put_Line ("");
@@ -374,20 +364,20 @@ procedure Rate_Monotonic_Tests is
       -- Test 21: Harmonic task set (periods are integer multiples)
       -- Periods: 2, 4, 8 (each is 2x the previous)
       Tasks21 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 2.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 1.0, Period => 4.0, Is_ISR => False),
-         (Id => 3, Computation_Time => 1.0, Period => 8.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 2.0),
+         2 => (Id => 2, Computation_Time => 1.0, Period => 4.0),
+         3 => (Id => 3, Computation_Time => 1.0, Period => 8.0)
       );
       
       -- Test 22: Non-harmonic task set
       Tasks22 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 2.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 1.0, Period => 3.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 2.0),
+         2 => (Id => 2, Computation_Time => 1.0, Period => 3.0)
       ); -- 3.0/2.0 = 1.5, not an integer
       
       -- Test 23: Single task is trivially harmonic
       Tasks23 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 5.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 5.0)
       );
       
       -- Test 24: Empty task set is trivially harmonic
@@ -421,16 +411,16 @@ procedure Rate_Monotonic_Tests is
       
       -- Test 26: Pure harmonic set (K=1, bound=1.0)
       Tasks26 : Task_Array := (
-         (Id => 1, Computation_Time => 0.5, Period => 2.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.5, Period => 4.0, Is_ISR => False),
-         (Id => 3, Computation_Time => 0.5, Period => 8.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 0.5, Period => 2.0),
+         2 => (Id => 2, Computation_Time => 0.5, Period => 4.0),
+         3 => (Id => 3, Computation_Time => 0.5, Period => 8.0)
       ); -- U = 0.25 + 0.125 + 0.0625 = 0.4375 <= 1.0
       
       -- Test 27: Non-harmonic set with multiple chains
       Tasks27 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 2.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 1.0, Period => 4.0, Is_ISR => False),
-         (Id => 3, Computation_Time => 1.0, Period => 3.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 2.0),
+         2 => (Id => 2, Computation_Time => 1.0, Period => 4.0),
+         3 => (Id => 3, Computation_Time => 1.0, Period => 3.0)
       ); -- Two chains: [2,4] and [3], K=2, bound ≈ 0.828
    begin
       Put_Line ("");
@@ -451,7 +441,7 @@ procedure Rate_Monotonic_Tests is
       declare
          Result : Boolean := Is_Schedulable_Harmonic_Chains (Tasks27);
       begin
-         Put_Line ("  Test 27.1: Non-harmonic set with K=2 chains, U≈1.083, Result: " & Boolean'Image(Result));
+         Put_Line ("  Test 27.1: Non-harmonic set with K=2 chains, U~1.083, Result: " & Boolean'Image(Result));
          -- We don't assert a specific value here as it depends on the exact bound calculation
          Total_Tests := Total_Tests + 1;
          Passed_Tests := Passed_Tests + 1;
@@ -468,18 +458,18 @@ procedure Rate_Monotonic_Tests is
       
       -- Test 29: Utilization well below 0.88
       Tasks29 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 2.0, Period => 20.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 2.0, Period => 20.0)
       ); -- U = 0.1 + 0.1 = 0.2 < 0.88
       
       -- Test 30: Utilization exactly at 0.88
       Tasks30 : Task_Array := (
-         (Id => 1, Computation_Time => 8.8, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 8.8, Period => 10.0)
       ); -- U = 0.88
       
       -- Test 31: Utilization above 0.88
       Tasks31 : Task_Array := (
-         (Id => 1, Computation_Time => 9.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 9.0, Period => 10.0)
       ); -- U = 0.9 > 0.88
    begin
       Put_Line ("");
@@ -507,26 +497,26 @@ procedure Rate_Monotonic_Tests is
    procedure Test_Edge_Cases is
       -- Test 32: Very small computation times
       Tasks32 : Task_Array := (
-         (Id => 1, Computation_Time => 0.0001, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.0001, Period => 20.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 0.0001, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.0001, Period => 20.0)
       );
       
       -- Test 33: Very large periods
       Tasks33 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 1000000.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 1.0, Period => 2000000.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 1000000.0),
+         2 => (Id => 2, Computation_Time => 1.0, Period => 2000000.0)
       );
       
       -- Test 34: Computation time equals period (100% utilization for that task)
       Tasks34 : Task_Array := (
-         (Id => 1, Computation_Time => 10.0, Period => 10.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 10.0, Period => 10.0)
       );
       
       -- Test 35: Mixed ISR and non-ISR with priority assignment
       Tasks35 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.5, Period => 20.0, Is_ISR => True),
-         (Id => 3, Computation_Time => 0.2, Period => 5.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.5, Period => 20.0, Is_ISR => True),
+         3 => (Id => 3, Computation_Time => 0.2, Period => 5.0)
       );
    begin
       Put_Line ("");
@@ -559,15 +549,15 @@ procedure Rate_Monotonic_Tests is
    procedure Test_Integration is
       -- Test 36: Complete workflow: assign priorities, mitigate ISRs, check schedulability
       Tasks36 : Task_Array := (
-         (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.5, Period => 20.0, Is_ISR => True),
-         (Id => 3, Computation_Time => 0.5, Period => 5.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.5, Period => 20.0, Is_ISR => True),
+         3 => (Id => 3, Computation_Time => 0.5, Period => 5.0)
       );
       
       -- Test 37: All schedulability tests on same task set
       Tasks37 : Task_Array := (
-         (Id => 1, Computation_Time => 0.1, Period => 10.0, Is_ISR => False),
-         (Id => 2, Computation_Time => 0.1, Period => 20.0, Is_ISR => False)
+         1 => (Id => 1, Computation_Time => 0.1, Period => 10.0),
+         2 => (Id => 2, Computation_Time => 0.1, Period => 20.0)
       );
    begin
       Put_Line ("");
