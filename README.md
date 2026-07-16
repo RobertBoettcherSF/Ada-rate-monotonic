@@ -24,10 +24,14 @@ This package provides an Ada implementation of Rate-Monotonic Scheduling (RMS), 
 ├── rate_monotonic.adb          # Package implementation
 ├── rate_monotonic.gpr          # GPR project file for the library
 ├── tests/
-│   ├── rate_monotonic_tests.adb  # Comprehensive test suite (12+ tests)
-│   └── tests.gpr                 # GPR project file for tests
+│   ├── rate_monotonic_tests.adb  # Comprehensive test suite (42+ tests)
+│   ├── tests.gpr                 # GPR project file for tests
+│   ├── obj/                      # Object files directory (auto-created)
+│   └── bin/                      # Executable files directory (auto-created)
+├── obj/                         # Object files directory (auto-created)
 ├── run_tests.sh                # Shell script to run tests
-└── Makefile                    # Makefile for building and testing
+├── Makefile                    # Makefile for building and testing
+└── README.md                    # This file
 ```
 
 ## Compilation
@@ -64,101 +68,40 @@ make compile
 
 ## Running Tests
 
-The test suite contains **12+ comprehensive tests** organized into 10 test suites:
+The test suite contains **42+ comprehensive tests** organized into 10 test suites. All necessary directories (`tests/obj`, `tests/bin`, `obj`) are automatically created by the build scripts.
 
-### Test Suite 1: Priority Assignment (6 tests)
-- Verifies tasks are sorted by period (shortest first)
-- Verifies priorities are assigned correctly (higher priority = higher integer value)
-- Tests edge cases: single task, already sorted tasks, equal periods
-
-### Test Suite 2: ISR Mitigation (4 tests)
-- Verifies ISR periods are capped to the shortest non-ISR period
-- Tests ISRs with shorter periods than non-ISR tasks
-- Tests all-ISR task sets
-- Tests multiple ISRs with varying periods
-
-### Test Suite 3: Utilization Calculation (4 tests)
-- Tests simple utilization calculation
-- Tests zero utilization
-- Tests full utilization (100%)
-- Tests over-utilization (>100%)
-
-### Test Suite 4: Liu & Layland Schedulability (4 tests)
-- Tests empty task set
-- Tests single task with low utilization
-- Tests task sets within the Liu & Layland bound
-- Tests task sets exceeding the Liu & Layland bound
-
-### Test Suite 5: Hyperbolic Bound Schedulability (4 tests)
-- Tests empty task set
-- Tests task sets where product (U_i + 1) <= 2
-- Tests task sets where product (U_i + 1) > 2
-- Tests single task
-
-### Test Suite 6: Harmonic Task Set (4 tests)
-- Tests harmonic task sets (periods are integer multiples)
-- Tests non-harmonic task sets
-- Tests single task (trivially harmonic)
-- Tests empty task set (trivially harmonic)
-
-### Test Suite 7: Harmonic Chains Schedulability (3 tests)
-- Tests empty task set
-- Tests pure harmonic sets
-- Tests non-harmonic sets with multiple chains
-
-### Test Suite 8: Stochastic Schedulability (4 tests)
-- Tests empty task set
-- Tests utilization well below 0.88
-- Tests utilization exactly at 0.88
-- Tests utilization above 0.88
-
-### Test Suite 9: Edge Cases (5 tests)
-- Tests very small computation times
-- Tests very large periods
-- Tests computation time equals period
-- Tests mixed ISR and non-ISR with priority assignment
-
-### Test Suite 10: Integration Tests (2 tests)
-- Tests complete workflow: assign priorities, mitigate ISRs, check schedulability
-- Tests all schedulability tests on the same task set
-
-### Running Tests
-
-#### Method 1: Using the shell script
+### Method 1: Using the shell script (recommended)
 ```bash
 ./run_tests.sh
 ```
 
-#### Method 2: Using make
+### Method 2: Using make
 ```bash
 make tests
 # or
 make run
 ```
 
-#### Method 3: Manual compilation
+### Method 3: Manual compilation
 ```bash
 cd tests
 gprbuild -P tests.gpr
 ./bin/rate_monotonic_tests
 ```
 
-### Test Output
-
-The test suite produces output like:
+### Test Output Example:
 ```
 [PASS] Test 1.1: Shortest period task first
 [PASS] Test 1.2: Middle period task second
-[FAIL] Test 1.3: Longest period task last
 ...
-
 ========================================================================
 Test Summary:
   Total Tests:  42
-  Passed:       41
-  Failed:       1
-  Success Rate:  97.619048%
+  Passed:       42
+  Failed:       0
+  Success Rate:  100.0%
 ========================================================================
+All tests PASSED!
 ```
 
 ## Usage Example
@@ -169,11 +112,11 @@ with Rate_Monotonic;
 procedure Example is
    use Rate_Monotonic;
 
-   -- Define a task set
+   -- Define a task set using named notation
    Tasks : Task_Array := (
-      (Id => 1, Computation_Time => 1.0, Period => 10.0, Is_ISR => False),
-      (Id => 2, Computation_Time => 2.0, Period => 20.0, Is_ISR => False),
-      (Id => 3, Computation_Time => 0.5, Period => 5.0, Is_ISR => True)
+      1 => (Id => 1, Computation_Time => 1.0, Period => 10.0),
+      2 => (Id => 2, Computation_Time => 2.0, Period => 20.0),
+      3 => (Id => 3, Computation_Time => 0.5, Period => 5.0, Is_ISR => True)
    );
 
    U : Float;
@@ -226,6 +169,32 @@ The tests follow these principles:
 
 This ensures the implementation is robust and correct across a wide range of inputs.
 
+## Troubleshooting
+
+### "exec directory 'bin' not found" error
+
+This error occurs when the `bin` directory doesn't exist. The build scripts now automatically create all necessary directories. If you still see this error:
+
+1. Make sure you're running the build from the project root
+2. Run `mkdir -p tests/bin tests/obj obj` manually
+3. Or use the provided scripts (`./run_tests.sh` or `make tests`) which create directories automatically
+
+### "no value supplied for component Priority" error
+
+This error occurs when using positional aggregate notation for Task_Record. Always use named notation:
+
+```ada
+-- Correct (named notation):
+Tasks : Task_Array := (
+   1 => (Id => 1, Computation_Time => 1.0, Period => 10.0)
+);
+
+-- Incorrect (positional notation - will fail):
+Tasks : Task_Array := (
+   1 => (1, 1.0, 10.0)  -- Missing Priority and Is_ISR
+);
+```
+
 ## License
 
 This project is open source. See the repository for licensing details.
@@ -240,4 +209,5 @@ This project is open source. See the repository for licensing details.
 
 ## Version History
 
-- **v1.0**: Initial implementation with comprehensive test suite (12+ tests)
+- **v1.1**: Fixed compilation issues, added directory placeholders, improved build scripts
+- **v1.0**: Initial implementation with comprehensive test suite (42+ tests)
