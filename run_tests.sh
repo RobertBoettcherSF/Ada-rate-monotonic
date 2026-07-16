@@ -32,8 +32,21 @@ else
     echo ""
     echo "On Ubuntu/Debian: sudo apt-get install gnat gprbuild"
     echo "On Fedora: sudo dnf install gcc-gnat gprbuild"
-    echo "On macOS (with Homebrew): brew install gnat"
     exit 1
+fi
+
+# Find GNAT library path
+GNAT_LIB_PATH=""
+if [ -d "/usr/lib/gcc/x86_64-linux-gnu/*/adalib" ]; then
+    GNAT_LIB_PATH="$(ls -d /usr/lib/gcc/x86_64-linux-gnu/*/adalib | head -1)"
+elif [ -d "/usr/lib/gcc/*/adalib" ]; then
+    GNAT_LIB_PATH="$(ls -d /usr/lib/gcc/*/adalib | head -1)"
+fi
+
+if [ -n "$GNAT_LIB_PATH" ]; then
+    echo "Found GNAT libraries at: $GNAT_LIB_PATH"
+    export ADA_OBJECTS_PATH="$GNAT_LIB_PATH"
+    export LD_LIBRARY_PATH="$GNAT_LIB_PATH:$LD_LIBRARY_PATH"
 fi
 
 echo ""
@@ -49,11 +62,11 @@ echo "==========================================================================
 # Compile using gprbuild if available, otherwise gnatmake
 if [ "$GNATMAKE" = "gprbuild" ]; then
     cd tests
-    gprbuild -P tests.gpr 2>&1 | grep -v "^  " | grep -v "^$"
+    gprbuild -P tests.gpr 2>&1 | grep -v "^  " | grep -v "^$" || true
     cd ..
 else
     cd tests
-    gnatmake -P tests.gpr 2>&1 | grep -v "^  " | grep -v "^$"
+    gnatmake -P tests.gpr 2>&1 | grep -v "^  " | grep -v "^$" || true
     cd ..
 fi
 
@@ -71,8 +84,20 @@ echo "==========================================================================
 
 # Run the tests
 cd tests
-./bin/rate_monotonic_tests
-EXIT_CODE=$?
+if [ -f ./bin/rate_monotonic_tests ]; then
+    ./bin/rate_monotonic_tests
+    EXIT_CODE=$?
+else
+    echo "ERROR: Executable not found in ./bin/"
+    echo "Trying alternative locations..."
+    if [ -f rate_monotonic_tests ]; then
+        ./rate_monotonic_tests
+        EXIT_CODE=$?
+    else
+        echo "ERROR: Could not find executable!"
+        EXIT_CODE=1
+    fi
+fi
 cd ..
 
 echo ""

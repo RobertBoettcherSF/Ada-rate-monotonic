@@ -13,14 +13,4 @@ project Tests is
       -- Use Ada 2012, optimize, and enable all warnings
       for Default_Switches ("Ada") use ("-O2", "-gnat12", "-gnatwa");
    end Compiler;
-
-   package Linker is
-      -- Link with necessary libraries
-      for Default_Switches ("Ada") use ("-static");
-   end Linker;
-
-   -- Create directories if they don't exist
-   package Builder is
-      for Default_Switches ("Ada") use ("-j0");
-   end Builder;
 end Tests;

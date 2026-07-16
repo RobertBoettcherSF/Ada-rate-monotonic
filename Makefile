@@ -31,12 +31,10 @@ compile:
 	@mkdir -p $(OBJ_DIR)
 	cd $(SRC_DIR) && $(GPRBUILD) -P rate_monotonic.gpr 2>&1 | grep -v "^  " | grep -v "^$$" || true
 
-# Create a main program for the library to make it a proper library
-# Actually, the library doesn't need a main, so we just compile it
 tests: compile
 	@echo "Compiling test suite..."
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
-	cd $(TEST_DIR) && $(GPRBUILD) -P tests.gpr 2>&1 | grep -v "^  " | grep -v "^$$"
+	cd $(TEST_DIR) && $(GPRBUILD) -P tests.gpr 2>&1 | grep -v "^  " | grep -v "^$$" || true
 
 run: tests
 	@echo "Running test suite..."
