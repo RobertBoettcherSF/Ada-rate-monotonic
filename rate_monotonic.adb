@@ -1,3 +1,6 @@
+with Ada.Numerics.Elementary_Functions;
+with System;
+
 package body Rate_Monotonic is
 
    -----------------------
@@ -66,17 +69,16 @@ package body Rate_Monotonic is
    -- Is_Schedulable_Liu_Layland --
    --------------------------------
    function Is_Schedulable_Liu_Layland (Tasks : Task_Array) return Boolean is
-      U : Float := Calculate_Utilization (Tasks);
-      N : Float := Float (Tasks'Length);
+      U : constant Float := Calculate_Utilization (Tasks);
+      N : constant Float := Float (Tasks'Length);
       
       use Ada.Numerics.Elementary_Functions;
-      Least_Upper_Bound : Float;
+      Least_Upper_Bound : constant Float := N * ((2.0 ** (1.0 / N)) - 1.0);
    begin
       if N = 0.0 then 
          return True; 
       end if;
       
-      Least_Upper_Bound := N * ((2.0 ** (1.0 / N)) - 1.0);
       return U <= Least_Upper_Bound;
    end Is_Schedulable_Liu_Layland;
 
@@ -105,8 +107,8 @@ package body Rate_Monotonic is
             -- Check if larger periods are exact integer multiples of shorter periods
             if Tasks(J).Period > Tasks(I).Period then
                declare
-                  Ratio       : Float := Tasks(J).Period / Tasks(I).Period;
-                  Nearest_Int : Float := Float'Rounding (Ratio);
+                  Ratio : constant Float := Tasks(J).Period / Tasks(I).Period;
+                  Nearest_Int : constant Float := Float'Rounding (Ratio);
                begin
                   if abs (Ratio - Nearest_Int) > Epsilon then
                      return False; -- Found a non-harmonic pair
@@ -129,7 +131,7 @@ package body Rate_Monotonic is
       Epsilon      : constant Float := 0.00001;
       
       Sorted_Tasks : Task_Array := Tasks;
-      U            : Float;
+      U            : constant Float := Calculate_Utilization (Tasks);
       Bound        : Float;
       
       use Ada.Numerics.Elementary_Functions;
@@ -166,8 +168,6 @@ package body Rate_Monotonic is
             end if;
          end;
       end loop;
-      
-      U := Calculate_Utilization (Tasks);
       
       -- Kuo & Mok's generalized least upper bound
       if K = 1 then

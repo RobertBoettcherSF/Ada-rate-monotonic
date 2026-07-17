@@ -1,4 +1,3 @@
-with Ada.Numerics.Elementary_Functions;
 with System;
 
 package Rate_Monotonic is
