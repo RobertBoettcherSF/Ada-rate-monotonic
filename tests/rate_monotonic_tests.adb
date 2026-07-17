@@ -521,6 +521,11 @@ procedure Rate_Monotonic_Tests is
       );
       
       -- Test 35: Mixed ISR and non-ISR with priority assignment
+      -- After Assign_Priorities, the array will be sorted by period:
+      -- Index 1: Task(3, 0.2, 5.0) - Priority 3
+      -- Index 2: Task(1, 1.0, 10.0) - Priority 2
+      -- Index 3: Task(2, 0.5, 20.0, Is_ISR=>True) - Priority 1
+      -- After Mitigate_ISRs, the ISR (index 3) should be capped to 5.0
       Tasks35 : Task_Array := (
          1 => Make_Task(1, 1.0, 10.0),
          2 => Make_Task(2, 0.5, 20.0, Is_ISR => True),
@@ -544,10 +549,12 @@ procedure Rate_Monotonic_Tests is
       -- Test 35: Mixed ISR and non-ISR
       Assign_Priorities (Tasks35);
       Mitigate_ISRs (Tasks35);
-      -- After mitigation, ISR period should be capped to 5.0 (shortest non-ISR)
-      Assert_Equal (Tasks35(2).Period, 5.0, "Test 35.1: ISR period capped after mitigation");
-      -- Priorities should still be assigned correctly
-      Assert_Equal (Tasks35(3).Priority, 3, "Test 35.2: Shortest period gets highest priority");
+      -- After sorting and mitigation:
+      -- Index 1: Task(3, 0.2, 5.0) - Priority 3 (shortest period, highest priority)
+      -- Index 2: Task(1, 1.0, 10.0) - Priority 2
+      -- Index 3: Task(2, 0.5, 5.0, Is_ISR=>True) - Priority 1 (ISR period capped to 5.0)
+      Assert_Equal (Tasks35(3).Period, 5.0, "Test 35.1: ISR period capped to 5.0 (now at index 3)");
+      Assert_Equal (Tasks35(1).Priority, 3, "Test 35.2: Shortest period gets highest priority (now at index 1)");
    end Test_Edge_Cases;
 
    -- ==========================================================================
