@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Rate Monotonic Scheduling - Comprehensive Test Suite
 -- ============================================================================
--- This test suite contains 42+ tests that verify the correctness of the
+-- This test suite contains 50 tests that verify the correctness of the
 -- Rate_Monotonic package implementation.
 --
 -- Tests are designed to:
@@ -13,14 +13,12 @@
 -- ============================================================================
 
 with Ada.Text_IO;
-with Ada.Float_Text_IO;
 with Rate_Monotonic;
 
 procedure Rate_Monotonic_Tests is
 
    use Rate_Monotonic;
    use Ada.Text_IO;
-   use Ada.Float_Text_IO;
 
    -- Test counters
    Total_Tests : Natural := 0;
@@ -237,24 +235,24 @@ procedure Rate_Monotonic_Tests is
 
    procedure Test_Utilization_Calculation is
       -- Test 9: Simple utilization calculation
-      Tasks9 : Task_Array := (
+      Tasks9 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 10.0),
          2 => Make_Task(2, 2.0, 20.0)
       );
       
       -- Test 10: Zero utilization (all computation times are 0)
-      Tasks10 : Task_Array := (
+      Tasks10 : constant Task_Array := (
          1 => Make_Task(1, 0.0, 10.0),
          2 => Make_Task(2, 0.0, 20.0)
       );
       
       -- Test 11: Full utilization (100%)
-      Tasks11 : Task_Array := (
+      Tasks11 : constant Task_Array := (
          1 => Make_Task(1, 10.0, 10.0)
       );
       
       -- Test 12: Over-utilization (>100%)
-      Tasks12 : Task_Array := (
+      Tasks12 : constant Task_Array := (
          1 => Make_Task(1, 15.0, 10.0)
       );
    begin
@@ -285,19 +283,19 @@ procedure Rate_Monotonic_Tests is
       Tasks13 : Task_Array (1 .. 0);
       
       -- Test 14: Single task with low utilization is schedulable
-      Tasks14 : Task_Array := (
+      Tasks14 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 10.0)
       );
       
       -- Test 15: Two tasks within Liu & Layland bound
       -- For n=2: U <= 2*(2^(1/2) - 1) ≈ 0.828
-      Tasks15 : Task_Array := (
+      Tasks15 : constant Task_Array := (
          1 => Make_Task(1, 0.4, 10.0),
          2 => Make_Task(2, 0.4, 10.0)
       ); -- U = 0.08
       
       -- Test 16: Two tasks exceeding Liu & Layland bound
-      Tasks16 : Task_Array := (
+      Tasks16 : constant Task_Array := (
          1 => Make_Task(1, 4.0, 10.0),
          2 => Make_Task(2, 5.0, 10.0)
       ); -- U = 0.9, which exceeds 0.828
@@ -330,19 +328,19 @@ procedure Rate_Monotonic_Tests is
       
       -- Test 18: Tasks where product (U_i + 1) <= 2
       -- U1 = 0.3, U2 = 0.3, Product = 1.3*1.3 = 1.69 <= 2
-      Tasks18 : Task_Array := (
+      Tasks18 : constant Task_Array := (
          1 => Make_Task(1, 3.0, 10.0),
          2 => Make_Task(2, 3.0, 10.0)
       );
       
       -- Test 19: Tasks where product (U_i + 1) > 2
-      Tasks19 : Task_Array := (
+      Tasks19 : constant Task_Array := (
          1 => Make_Task(1, 5.0, 10.0),
          2 => Make_Task(2, 5.0, 10.0)
       ); -- U1 = 0.5, U2 = 0.5, Product = 2.25 > 2
       
       -- Test 20: Single task (product = U+1 <= 2 when U <= 1)
-      Tasks20 : Task_Array := (
+      Tasks20 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 10.0)
       );
    begin
@@ -371,20 +369,20 @@ procedure Rate_Monotonic_Tests is
    procedure Test_Harmonic_Task_Set is
       -- Test 21: Harmonic task set (periods are integer multiples)
       -- Periods: 2, 4, 8 (each is 2x the previous)
-      Tasks21 : Task_Array := (
+      Tasks21 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 2.0),
          2 => Make_Task(2, 1.0, 4.0),
          3 => Make_Task(3, 1.0, 8.0)
       );
       
       -- Test 22: Non-harmonic task set
-      Tasks22 : Task_Array := (
+      Tasks22 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 2.0),
          2 => Make_Task(2, 1.0, 3.0)
       ); -- 3.0/2.0 = 1.5, not an integer
       
       -- Test 23: Single task is trivially harmonic
-      Tasks23 : Task_Array := (
+      Tasks23 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 5.0)
       );
       
@@ -418,14 +416,14 @@ procedure Rate_Monotonic_Tests is
       Tasks25 : Task_Array (1 .. 0);
       
       -- Test 26: Pure harmonic set (K=1, bound=1.0)
-      Tasks26 : Task_Array := (
+      Tasks26 : constant Task_Array := (
          1 => Make_Task(1, 0.5, 2.0),
          2 => Make_Task(2, 0.5, 4.0),
          3 => Make_Task(3, 0.5, 8.0)
       ); -- U = 0.25 + 0.125 + 0.0625 = 0.4375 <= 1.0
       
       -- Test 27: Non-harmonic set with multiple chains
-      Tasks27 : Task_Array := (
+      Tasks27 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 2.0),
          2 => Make_Task(2, 1.0, 4.0),
          3 => Make_Task(3, 1.0, 3.0)
@@ -447,7 +445,7 @@ procedure Rate_Monotonic_Tests is
       -- This test verifies the algorithm handles non-harmonic sets
       -- The actual result depends on the implementation
       declare
-         Result : Boolean := Is_Schedulable_Harmonic_Chains (Tasks27);
+         Result : constant Boolean := Is_Schedulable_Harmonic_Chains (Tasks27);
       begin
          Put_Line ("  Test 27.1: Non-harmonic set with K=2 chains, U~1.083, Result: " & Boolean'Image(Result));
          -- We don't assert a specific value here as it depends on the exact bound calculation
@@ -465,18 +463,18 @@ procedure Rate_Monotonic_Tests is
       Tasks28 : Task_Array (1 .. 0);
       
       -- Test 29: Utilization well below 0.88
-      Tasks29 : Task_Array := (
+      Tasks29 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 10.0),
          2 => Make_Task(2, 2.0, 20.0)
       ); -- U = 0.1 + 0.1 = 0.2 < 0.88
       
       -- Test 30: Utilization exactly at 0.88
-      Tasks30 : Task_Array := (
+      Tasks30 : constant Task_Array := (
          1 => Make_Task(1, 8.8, 10.0)
       ); -- U = 0.88
       
       -- Test 31: Utilization above 0.88
-      Tasks31 : Task_Array := (
+      Tasks31 : constant Task_Array := (
          1 => Make_Task(1, 9.0, 10.0)
       ); -- U = 0.9 > 0.88
    begin
@@ -504,19 +502,19 @@ procedure Rate_Monotonic_Tests is
 
    procedure Test_Edge_Cases is
       -- Test 32: Very small computation times
-      Tasks32 : Task_Array := (
+      Tasks32 : constant Task_Array := (
          1 => Make_Task(1, 0.0001, 10.0),
          2 => Make_Task(2, 0.0001, 20.0)
       );
       
       -- Test 33: Very large periods
-      Tasks33 : Task_Array := (
+      Tasks33 : constant Task_Array := (
          1 => Make_Task(1, 1.0, 1000000.0),
          2 => Make_Task(2, 1.0, 2000000.0)
       );
       
       -- Test 34: Computation time equals period (100% utilization for that task)
-      Tasks34 : Task_Array := (
+      Tasks34 : constant Task_Array := (
          1 => Make_Task(1, 10.0, 10.0)
       );
       
@@ -570,7 +568,7 @@ procedure Rate_Monotonic_Tests is
       );
       
       -- Test 37: All schedulability tests on same task set
-      Tasks37 : Task_Array := (
+      Tasks37 : constant Task_Array := (
          1 => Make_Task(1, 0.1, 10.0),
          2 => Make_Task(2, 0.1, 20.0)
       );
@@ -584,10 +582,10 @@ procedure Rate_Monotonic_Tests is
       Assign_Priorities (Tasks36);
       Mitigate_ISRs (Tasks36);
       declare
-         U : Float := Calculate_Utilization (Tasks36);
-         LL : Boolean := Is_Schedulable_Liu_Layland (Tasks36);
-         Hyp : Boolean := Is_Schedulable_Hyperbolic (Tasks36);
-         Stoch : Boolean := Is_Schedulable_Stochastic (Tasks36);
+         U : constant Float := Calculate_Utilization (Tasks36);
+         LL : constant Boolean := Is_Schedulable_Liu_Layland (Tasks36);
+         Hyp : constant Boolean := Is_Schedulable_Hyperbolic (Tasks36);
+         Stoch : constant Boolean := Is_Schedulable_Stochastic (Tasks36);
       begin
          Put_Line ("  Test 36.1: Complete workflow results:");
          Put_Line ("    Utilization: " & Float'Image(U));
@@ -600,11 +598,11 @@ procedure Rate_Monotonic_Tests is
       
       -- Test 37: All schedulability tests
       declare
-         LL : Boolean := Is_Schedulable_Liu_Layland (Tasks37);
-         Hyp : Boolean := Is_Schedulable_Hyperbolic (Tasks37);
-         Harm : Boolean := Is_Harmonic_Task_Set (Tasks37);
-         HC : Boolean := Is_Schedulable_Harmonic_Chains (Tasks37);
-         Stoch : Boolean := Is_Schedulable_Stochastic (Tasks37);
+         LL : constant Boolean := Is_Schedulable_Liu_Layland (Tasks37);
+         Hyp : constant Boolean := Is_Schedulable_Hyperbolic (Tasks37);
+         Harm : constant Boolean := Is_Harmonic_Task_Set (Tasks37);
+         HC : constant Boolean := Is_Schedulable_Harmonic_Chains (Tasks37);
+         Stoch : constant Boolean := Is_Schedulable_Stochastic (Tasks37);
       begin
          Put_Line ("  Test 37.1: All schedulability tests on same task set:");
          Put_Line ("    Liu-Layland: " & Boolean'Image(LL));
