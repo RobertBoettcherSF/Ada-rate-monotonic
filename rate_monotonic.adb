@@ -1,4 +1,3 @@
-with Ada.Numerics.Elementary_Functions;
 with System;
 
 package body Rate_Monotonic is
@@ -69,10 +68,11 @@ package body Rate_Monotonic is
    -- Is_Schedulable_Liu_Layland --
    --------------------------------
    function Is_Schedulable_Liu_Layland (Tasks : Task_Array) return Boolean is
+      with Ada.Numerics.Elementary_Functions;
+      use Ada.Numerics.Elementary_Functions;
+      
       U : constant Float := Calculate_Utilization (Tasks);
       N : constant Float := Float (Tasks'Length);
-      
-      use Ada.Numerics.Elementary_Functions;
       Least_Upper_Bound : constant Float := N * ((2.0 ** (1.0 / N)) - 1.0);
    begin
       if N = 0.0 then 
@@ -125,6 +125,9 @@ package body Rate_Monotonic is
    -- Is_Schedulable_Harmonic_Chains --
    ------------------------------------
    function Is_Schedulable_Harmonic_Chains (Tasks : Task_Array) return Boolean is
+      with Ada.Numerics.Elementary_Functions;
+      use Ada.Numerics.Elementary_Functions;
+      
       type Float_Array is array (1 .. Tasks'Length) of Float;
       Chain_Maxes  : Float_Array := (others => 0.0);
       K            : Natural := 0;
@@ -133,8 +136,6 @@ package body Rate_Monotonic is
       Sorted_Tasks : Task_Array := Tasks;
       U            : constant Float := Calculate_Utilization (Tasks);
       Bound        : Float;
-      
-      use Ada.Numerics.Elementary_Functions;
    begin
       if Tasks'Length = 0 then
          return True;
